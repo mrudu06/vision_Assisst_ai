@@ -11,7 +11,6 @@
 *   **⚡ Ultra-Low Latency:** Uses `gemini-1.5-flash` to process both visual and code-based context rapidly and return concise, actionable descriptions.
 *   **🔊 Audio Feedback & TTS:** Uses the Web Audio API to provide subtle auditory cues (beeps) indicating when the microphone is listening and when the AI is processing, followed by native Text-to-Speech (TTS) reading the AI's response aloud.
 *   **🔐 Secure BYOK (Bring Your Own Key):** A clean Options UI allows users to safely input and store their Gemini API key in `chrome.storage.local`.
-*   **🎭 Offline Demo Mode:** A presentation-safe fallback mode that simulates the AI response instantly based solely on DOM extraction, without requiring an internet connection or an active API key.
 
 ---
 
@@ -81,15 +80,6 @@ graph TD
 4. Listen for the **first beep**, then speak your query into your microphone.
 5. Listen for the **second beep** indicating that the AI is processing.
 6. The AI will audibly read out its contextual analysis of your page.
-
----
-
-## 🧪 Demo Mode (For Presentations)
-If you need to demo the application without internet overhead or API quotas, you can enable **Offline Demo Mode**:
-1. Open the Extension Options page.
-2. Check the box for **"Enable Offline Demo Mode"**.
-3. Save your settings. 
-The extension will now perfectly simulate the application flow, returning a dynamic summary of your page structure instantly.
 
 ---
 
