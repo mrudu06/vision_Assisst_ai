@@ -17,6 +17,35 @@
 
 ## 🛠️ Tech Stack & Architecture
 
+### System Flow
+```mermaid
+graph TD
+    %% Styling
+    classDef user fill:#ff9999,stroke:#333,stroke-width:2px;
+    classDef frontend fill:#99ccff,stroke:#333,stroke-width:2px;
+    classDef backend fill:#ffcc99,stroke:#333,stroke-width:2px;
+    classDef api fill:#cc99ff,stroke:#333,stroke-width:2px;
+
+    %% Nodes
+    U((User)):::user
+    CS[Content Script <br> content.js]:::frontend
+    BG{Background Worker <br> background.js}:::backend
+    CAP[Screen Capture <br> Chrome API]:::backend
+    GEM[Google Gemini <br> 1.5 Flash API]:::api
+    TTS((Audio Output)):::user
+
+    %% Flow
+    U -->|1. Presses Alt+V & Speaks| CS
+    CS -->|2. Web Speech API STT| CS
+    CS -->|3. Extracts DOM & Sends Transcript| BG
+    BG -->|4. captureVisibleTab| CAP
+    CAP -->|5. Returns Base64 JPEG| BG
+    BG -->|6. Sends Image + DOM + Prompt| GEM
+    GEM -->|7. Returns Text Description| BG
+    BG -->|8. Forwards Response| CS
+    CS -->|9. window.speechSynthesis TTS| TTS
+```
+
 *   **Platform:** Chrome Extension (Manifest V3)
 *   **Languages:** Vanilla JavaScript (ES6+), HTML5, CSS3
 *   **AI Integration:** Google Gemini API (`gemini-1.5-flash`)
