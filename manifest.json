@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "VisionAssist AI",
+  "version": "1.0",
+  "description": "Multi-modal AI visual assistant for totally blind users using Gemini API.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "options_page": "options/options.html",
+  "commands": {
+    "activate_vision_assist": {
+      "suggested_key": {
+        "default": "Alt+V",
+        "mac": "Alt+V"
+      },
+      "description": "Activate VisionAssist AI"
+    }
+  }
+}
