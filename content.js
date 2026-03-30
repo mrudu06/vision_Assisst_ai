@@ -3,20 +3,29 @@ function extractPageContext() {
   const title = document.title || 'No Title';
   const h1 = document.querySelector('h1') ? document.querySelector('h1').innerText : 'No H1';
   
+  // Reset any old identifiers
+  document.querySelectorAll('[data-vision-assist-id]').forEach(el => el.removeAttribute('data-vision-assist-id'));
+  
+  let elementId = 1;
   const buttonsAndLinks = Array.from(document.querySelectorAll('button, a'))
     .filter(el => {
       const rect = el.getBoundingClientRect();
       const isVisible = rect.width > 0 && rect.height > 0 && window.getComputedStyle(el).visibility !== 'hidden';
       return isVisible && el.innerText.trim() !== '';
     })
-    .map(el => `${el.tagName.toLowerCase()}: ${el.innerText.trim()}`)
-    .slice(0, 20); // Limit to top 20 visible interactive elements
+    .slice(0, 20)
+    .map(el => {
+      el.setAttribute('data-vision-assist-id', elementId);
+      const output = `[ID: ${elementId}] ${el.tagName.toLowerCase()}: ${el.innerText.trim()}`;
+      elementId++;
+      return output;
+    });
 
   let context = `Title: ${title}\nPrimary Heading: ${h1}\nInteractive Elements:\n${buttonsAndLinks.join('\n')}`;
   
-  // Cap at ~1000 chars
-  if (context.length > 1000) {
-    context = context.substring(0, 997) + '...';
+  // Cap at ~1500 chars
+  if (context.length > 1500) {
+    context = context.substring(0, 1497) + '...';
   }
   return context;
 }
@@ -135,6 +144,23 @@ async function handleUserVoiceAction(transcript) {
           console.error("Background script returned error:", response.error);
           speakText(response.error);
         } else if (response.text) {
+          // Attempt to parse JSON action commands
+          try {
+            const jsonStr = response.text.match(/\{.*"action".*\}/s);
+            if (jsonStr) {
+              const cmd = JSON.parse(jsonStr[0]);
+              if (cmd.action === 'click' && cmd.elementId) {
+                const targetEl = document.querySelector(`[data-vision-assist-id="${cmd.elementId}"]`);
+                if (targetEl) {
+                  speakText(`Clicking ${targetEl.innerText || 'the link'}`);
+                  targetEl.click();
+                  return; // Stop here, don't read the raw JSON out loud
+                }
+              }
+            }
+          } catch(e) {
+            // Not JSON or failed to parse, proceed to normal speech output
+          }
           speakText(response.text);
         } else {
           speakText("I am sorry, I did not understand the response.");

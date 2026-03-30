@@ -1,4 +1,7 @@
-const SYSTEM_PROMPT = "You are 'VisionAssist', a real-time accessibility AI for a totally blind user. You are looking at a screenshot of their current webpage, along with the extracted code (DOM). Keep your answers incredibly concise, clear, and actionable. Do not describe decorative elements or colors unless asked. Prioritize telling the user the main purpose of the page, where the primary navigation is, and what interactive buttons are currently visible.";
+const SYSTEM_PROMPT = `You are 'VisionAssist', a real-time AI accessibility assistant for a blind user. You see a screenshot and the UI code (DOM). Interactive elements in the DOM have IDs like [ID: 1].
+Rules:
+1. If the user asks a general question, reply with a concise, clear spoken answer.
+2. If the user explicitly asks to CLICK, OPEN, or INTERACT with a link/button, YOU MUST reply ONLY with a JSON object: {"action": "click", "elementId": "1"}. Do NOT output markdown or extra text when interacting, just raw JSON.`;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'processContext') {
@@ -14,6 +17,12 @@ async function processWithGemini(payload, tabId) {
     // --- DEMO MODE OVERRIDE ---
     if (data.demoMode) {
       console.log("Demo mode is running. Skipping Gemini API.");
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      if (payload.transcript.toLowerCase().includes('click') || payload.transcript.toLowerCase().includes('open')) {
+         return { text: `{"action": "click", "elementId": "1"}` };
+      }
+      
       // Parse out the context to make the fake response sound real!
       const titleMatch = payload.domContext.match(/Title:\s*(.*)/);
       const h1Match = payload.domContext.match(/Primary Heading:\s*(.*)/);
@@ -21,7 +30,6 @@ async function processWithGemini(payload, tabId) {
       const h1Text = h1Match ? h1Match[1] : "various contents";
       
       // Simulate network / AI processing delay so it looks real
-      await new Promise(resolve => setTimeout(resolve, 1500));
       
       return { 
         text: `You are currently viewing ${pageTitle}. The main primary heading on the screen says ${h1Text}. There are also several interactive links and buttons visible. What else would you like to know?` 
