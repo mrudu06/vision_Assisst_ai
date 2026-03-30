@@ -1,7 +1,7 @@
-const SYSTEM_PROMPT = `You are 'VisionAssist', a real-time AI accessibility assistant for a blind user. You see a screenshot and the UI code (DOM). Interactive elements in the DOM have IDs like [ID: 1].
+const SYSTEM_PROMPT = `You are 'VisionAssist', a real-time AI accessibility assistant for a blind user. You see a screenshot and the UI code (DOM).
 Rules:
-1. If the user asks a general question, reply with a concise, clear spoken answer.
-2. If the user explicitly asks to CLICK, OPEN, or INTERACT with a link/button, YOU MUST reply ONLY with a JSON object: {"action": "click", "elementId": "1"}. Do NOT output markdown or extra text when interacting, just raw JSON.`;
+1. If the user asks a general question about the page, reply with a concise, clear spoken answer.
+2. If the user explicitly asks to SEARCH for something (e.g. "search Wikipedia for cats", "look up dogs"), YOU MUST reply ONLY with a JSON object: {"action": "search", "query": "cats"}. Do NOT output markdown or extra text, just raw JSON.`;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'processContext') {
@@ -19,8 +19,11 @@ async function processWithGemini(payload, tabId) {
       console.log("Demo mode is running. Skipping Gemini API.");
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      if (payload.transcript.toLowerCase().includes('click') || payload.transcript.toLowerCase().includes('open')) {
-         return { text: `{"action": "click", "elementId": "1"}` };
+      if (payload.transcript.toLowerCase().includes('search')) {
+         // Extract rough query words for demo purposes
+         const words = payload.transcript.split(' ');
+         const lastWord = words[words.length - 1]; 
+         return { text: `{"action": "search", "query": "${lastWord}"}` };
       }
       
       // Parse out the context to make the fake response sound real!

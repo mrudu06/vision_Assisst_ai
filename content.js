@@ -3,29 +3,20 @@ function extractPageContext() {
   const title = document.title || 'No Title';
   const h1 = document.querySelector('h1') ? document.querySelector('h1').innerText : 'No H1';
   
-  // Reset any old identifiers
-  document.querySelectorAll('[data-vision-assist-id]').forEach(el => el.removeAttribute('data-vision-assist-id'));
-  
-  let elementId = 1;
   const buttonsAndLinks = Array.from(document.querySelectorAll('button, a'))
     .filter(el => {
       const rect = el.getBoundingClientRect();
       const isVisible = rect.width > 0 && rect.height > 0 && window.getComputedStyle(el).visibility !== 'hidden';
       return isVisible && el.innerText.trim() !== '';
     })
-    .slice(0, 20)
-    .map(el => {
-      el.setAttribute('data-vision-assist-id', elementId);
-      const output = `[ID: ${elementId}] ${el.tagName.toLowerCase()}: ${el.innerText.trim()}`;
-      elementId++;
-      return output;
-    });
+    .map(el => `${el.tagName.toLowerCase()}: ${el.innerText.trim()}`)
+    .slice(0, 20); // Limit to top 20 visible interactive elements
 
   let context = `Title: ${title}\nPrimary Heading: ${h1}\nInteractive Elements:\n${buttonsAndLinks.join('\n')}`;
   
-  // Cap at ~1500 chars
-  if (context.length > 1500) {
-    context = context.substring(0, 1497) + '...';
+  // Cap at ~1000 chars
+  if (context.length > 1000) {
+    context = context.substring(0, 997) + '...';
   }
   return context;
 }
@@ -149,13 +140,13 @@ async function handleUserVoiceAction(transcript) {
             const jsonStr = response.text.match(/\{.*"action".*\}/s);
             if (jsonStr) {
               const cmd = JSON.parse(jsonStr[0]);
-              if (cmd.action === 'click' && cmd.elementId) {
-                const targetEl = document.querySelector(`[data-vision-assist-id="${cmd.elementId}"]`);
-                if (targetEl) {
-                  speakText(`Clicking ${targetEl.innerText || 'the link'}`);
-                  targetEl.click();
-                  return; // Stop here, don't read the raw JSON out loud
-                }
+              if (cmd.action === 'search' && cmd.query) {
+                speakText(`Searching Wikipedia for ${cmd.query}...`);
+                // Wait briefly so speech can start before page unloads
+                setTimeout(() => {
+                  window.location.href = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(cmd.query)}`;
+                }, 1500);
+                return; // Stop here
               }
             }
           } catch(e) {
