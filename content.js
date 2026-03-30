@@ -3,6 +3,16 @@ function extractPageContext() {
   const title = document.title || 'No Title';
   const h1 = document.querySelector('h1') ? document.querySelector('h1').innerText : 'No H1';
   
+  // Extract visible paragraphs
+  const paragraphs = Array.from(document.querySelectorAll('p'))
+    .filter(p => {
+      const rect = p.getBoundingClientRect();
+      const isVisible = rect.width > 0 && rect.height > 0 && window.getComputedStyle(p).visibility !== 'hidden';
+      return isVisible && p.innerText.trim().length > 20; // Only get substantial text, not tiny labels
+    })
+    .map(p => p.innerText.trim())
+    .slice(0, 3); // Limit to first 3 paragraphs to save token space
+  
   const buttonsAndLinks = Array.from(document.querySelectorAll('button, a'))
     .filter(el => {
       const rect = el.getBoundingClientRect();
@@ -10,13 +20,13 @@ function extractPageContext() {
       return isVisible && el.innerText.trim() !== '';
     })
     .map(el => `${el.tagName.toLowerCase()}: ${el.innerText.trim()}`)
-    .slice(0, 20); // Limit to top 20 visible interactive elements
+    .slice(0, 15); // Slightly reduced since we added paragraphs
 
-  let context = `Title: ${title}\nPrimary Heading: ${h1}\nInteractive Elements:\n${buttonsAndLinks.join('\n')}`;
+  let context = `Title: ${title}\nPrimary Heading: ${h1}\n\nVisible Text/Paragraphs:\n${paragraphs.join('\n\n')}\n\nInteractive Elements:\n${buttonsAndLinks.join('\n')}`;
   
-  // Cap at ~1000 chars
-  if (context.length > 1000) {
-    context = context.substring(0, 997) + '...';
+  // Cap at ~1500 chars so it doesn't break limits
+  if (context.length > 1500) {
+    context = context.substring(0, 1497) + '...';
   }
   return context;
 }
