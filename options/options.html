@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>VisionAssist AI Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h1>VisionAssist AI Setup</h1>
+    <p>Configure your Gemini API settings below to enable the AI visual assistant.</p>
+    
+    <div class="control-group">
+      <label for="apiKey">Gemini API Key (gemini-1.5-flash):</label>
+      <input type="password" id="apiKey" placeholder="Enter your API Key here">
+    </div>
+
+    <div class="control-group" style="display: flex; align-items: center; gap: 10px; margin-top: 15px; margin-bottom: 25px; padding: 15px; background: #e8f0fe; border-radius: 8px;">
+      <input type="checkbox" id="demoMode" style="width: 20px; height: 20px;">
+      <label for="demoMode" style="margin: 0; color: #1557b0; cursor: pointer;">
+        <strong>Enable Offline Demo Mode</strong> <br>
+        <span style="font-weight: normal; font-size: 13px;">(Skips the API and returns a mock response immediately. Great for presentations!)</span>
+      </label>
+    </div>
+    
+    <button id="saveBtn">Save Configuration</button>
+    <div id="status" class="status-message"></div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
