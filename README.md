@@ -1,4 +1,4 @@
-  # 👁️ VisionAssist AI
+   # 👁️ VisionAssist AI
 
 **VisionAssist AI** is a multi-modal, real-time visual assistant Chrome Extension designed to empower totally blind users. By leveraging native browser APIs alongside cutting-edge AI (Google Gemini 1.5 Flash), VisionAssist acts as an intelligent, conversational screen reader that understands both the *code* and the *visual structure* of a webpage.
 
